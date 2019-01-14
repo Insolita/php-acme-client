@@ -1,0 +1,43 @@
+{
+    "name": "kouk1/php-acme-client",
+    "description": "ACME Client supported endpoint for ACME v2",
+    "keywords": ["acme", "letsencrypt", "certificate"],
+    "homepage": "https://github.com/kouk1/php-acme-client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "kouk1"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^6.3",
+        "monolog/monolog": "^1.24",
+        "symfony/console": "^4.1",
+        "symfony/debug": "^4.1",
+        "illuminate/container": "^5.7",
+        "symfony/process": "^4.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.4",
+        "phpstan/phpstan": "^0.10.5",
+        "friendsofphp/php-cs-fixer": "^2.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "AcmeClient\\": "src/AcmeClient"
+        },
+        "files": ["src/AcmeClient/helpers.php"]
+    },
+    "autoload-dev": {
+        "files": ["tests/AcmeClient/functions.php"],
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpunit": "phpunit -v",
+        "phpstan": "phpstan analyse -l 7 -c phpstan.neon src tests",
+        "phpcs": "php-cs-fixer fix -v --dry-run --using-cache=no --allow-risky=yes --diff"
+    }
+}

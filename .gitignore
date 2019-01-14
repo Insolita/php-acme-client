@@ -1,0 +1,4 @@
+acme/
+log/
+vendor/
+composer.lock

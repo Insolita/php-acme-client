@@ -1,0 +1,8 @@
+parameters:
+    ignoreErrors:
+        - '#Call to an undefined method Prophecy.+#'
+        - '#Negated boolean.+#'
+        - '#.+ \$logger of class AcmeClient\\Infrastructure\\Http\\Client.+#'
+        - '#.+ GuzzleHttp\\Psr7\\str expects Psr\\Http\\Message\\MessageInterface.+#'
+        - '#.+ AcmeClient\\.+, object given.+#'
+        - '#.+DateTime|false given.+#'
