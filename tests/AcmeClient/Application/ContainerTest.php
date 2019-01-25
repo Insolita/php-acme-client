@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\AcmeClient\Application;
 
 use AcmeClient\ClientInterface;
+use League\Container\Container;
 
 class ContainerTest extends \PHPUnit\Framework\TestCase
 {
@@ -14,9 +15,9 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
     public function testContainer(): void
     {
         $expected = new \stdClass();
-
-        $mock = $this->prophesize(\Illuminate\Container\Container::class);
-        $mock->make('stdClass', [])->willReturn($expected)->shouldBeCalled();
+    
+        $mock = $this->prophesize(Container::class);
+        $mock->get('stdClass')->willReturn($expected)->shouldBeCalled();
 
         $client = $this->prophesize(ClientInterface::class);
         $client->getContainer()->willReturn($mock->reveal())->shouldBeCalled();

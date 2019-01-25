@@ -7,11 +7,10 @@ trait Container
 {
     /**
      * @param  string $abstract
-     * @param  array  $parameters
      * @return mixed
      */
-    protected function container(string $abstract, array $parameters = [])
+    protected function container(string $abstract)
     {
-        return $this->client->getContainer()->make($abstract, $parameters);
+        return $this->client->getContainer()->get($abstract);
     }
 }

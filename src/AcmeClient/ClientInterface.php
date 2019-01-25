@@ -6,7 +6,7 @@ namespace AcmeClient;
 use AcmeClient\Application\ApplicationService;
 use AcmeClient\Domain\Model\Resource\Directory;
 use AcmeClient\Infrastructure\Http\ClientInterface as HttpClientInterface;
-use Illuminate\Container\Container;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 interface ClientInterface
@@ -49,9 +49,9 @@ interface ClientInterface
     public function getHttpClient(): HttpClientInterface;
 
     /**
-     * @return Container
+     * @return ContainerInterface
      */
-    public function getContainer(): Container;
+    public function getContainer(): ContainerInterface;
 
     /**
      * @return Directory

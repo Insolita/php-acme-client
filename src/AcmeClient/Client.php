@@ -16,9 +16,10 @@ use AcmeClient\Exception\InvalidArgumentException;
 use AcmeClient\Infrastructure\Http\Client as HttpClient;
 use AcmeClient\Infrastructure\Http\ClientInterface as HttpClientInterface;
 use GuzzleHttp\ClientInterface as GuzzleInterface;
-use Illuminate\Container\Container;
+use League\Container\Container;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 class Client implements ClientInterface
@@ -196,15 +197,12 @@ class Client implements ClientInterface
     {
         return $this->httpClient;
     }
-
-    /**
-     * @return Container
-     */
-    public function getContainer(): Container
+    
+    public function getContainer(): ContainerInterface
     {
         return $this->container;
     }
-
+    
     /**
      * @return Directory
      */
@@ -230,7 +228,7 @@ class Client implements ClientInterface
             case 'account':
                 $service = new AccountService(
                     $this,
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Account\AccountRepository::class
                     )
                 );
@@ -243,13 +241,13 @@ class Client implements ClientInterface
             case 'cert':
                 $service = new CertService(
                     $this,
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Account\AccountRepository::class
                     ),
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Certificate\CertificateRepository::class
                     ),
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Config\ConfigRepository::class
                     )
                 );
@@ -258,13 +256,13 @@ class Client implements ClientInterface
             case 'challenge':
                 $service = new ChallengeService(
                     $this,
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Account\AccountRepository::class
                     ),
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Service\DomainValidationService::class
                     ),
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Service\WaitingForValidationServiceInterface::class
                     )
                 );
@@ -277,7 +275,7 @@ class Client implements ClientInterface
             case 'order':
                 $service = new OrderService(
                     $this,
-                    $this->container->make(
+                    $this->container->get(
                         \AcmeClient\Domain\Model\Account\AccountRepository::class
                     )
                 );
@@ -349,21 +347,21 @@ class Client implements ClientInterface
     {
         $client    = $this;
         $container = new Container();
-
-        $container->instance(LoggerInterface::class, $this->logger);
-        $container->instance(HttpClientInterface::class, $this->httpClient);
-
-        $container->bind(
+    
+        $container->add(LoggerInterface::class, $this->logger)->setShared(true);
+        $container->add(HttpClientInterface::class, $this->httpClient)->setShared(true);
+    
+        $container->add(
             \AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class,
             \AcmeClient\Infrastructure\FileSystem\FileSystem::class
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Infrastructure\OpenSSL\OpenSSLInterface::class,
             \AcmeClient\Infrastructure\OpenSSL\OpenSSL::class
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Domain\Model\Account\AccountRepository::class,
             function ($container) use ($client) {
                 $repository = sprintf(
@@ -373,13 +371,13 @@ class Client implements ClientInterface
                 );
 
                 return new \AcmeClient\Infrastructure\Persistence\FileSystem\AccountRepository(
-                    $container->make(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
+                    $container->get(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
                     $repository
                 );
             }
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Domain\Model\Certificate\CertificateRepository::class,
             function ($container) use ($client) {
                 $repository = sprintf(
@@ -389,13 +387,13 @@ class Client implements ClientInterface
                 );
 
                 return new \AcmeClient\Infrastructure\Persistence\FileSystem\CertificateRepository(
-                    $container->make(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
+                    $container->get(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
                     $repository
                 );
             }
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Domain\Model\Config\ConfigRepository::class,
             function ($container) use ($client) {
                 $repository = sprintf(
@@ -405,37 +403,37 @@ class Client implements ClientInterface
                 );
 
                 return new \AcmeClient\Infrastructure\Persistence\FileSystem\ConfigRepository(
-                    $container->make(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
+                    $container->get(\AcmeClient\Infrastructure\FileSystem\FileSystemInterface::class),
                     $repository
                 );
             }
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Infrastructure\Shell\ProcessInterface::class,
             function ($container) {
                 return new \AcmeClient\Infrastructure\Shell\Process(
-                    $container->make(LoggerInterface::class)
+                    $container->get(LoggerInterface::class)
                 );
             }
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Domain\Service\DomainValidationService::class,
             function ($container) {
                 return new \AcmeClient\Infrastructure\DomainValidation\DnsChallengeService(
-                    $container->make(LoggerInterface::class),
-                    $container->make(\AcmeClient\Infrastructure\Shell\ProcessInterface::class)
+                    $container->get(LoggerInterface::class),
+                    $container->get(\AcmeClient\Infrastructure\Shell\ProcessInterface::class)
                 );
             }
         );
-
-        $container->bind(
+    
+        $container->add(
             \AcmeClient\Domain\Service\WaitingForValidationServiceInterface::class,
             function ($container) {
                 return new \AcmeClient\Domain\Service\WaitingForValidationService(
-                    $container->make(LoggerInterface::class),
-                    $container->make(HttpClientInterface::class)
+                    $container->get(LoggerInterface::class),
+                    $container->get(HttpClientInterface::class)
                 );
             }
         );
